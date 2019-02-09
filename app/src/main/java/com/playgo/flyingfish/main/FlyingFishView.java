@@ -9,7 +9,9 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
+import com.playgo.flyingfish.AppNavigator;
 import com.playgo.flyingfish.R;
 
 public class FlyingFishView extends View {
@@ -23,13 +25,16 @@ public class FlyingFishView extends View {
     private Bitmap life[] = new Bitmap[2];
 
     private Paint scorePaint = new Paint();
-    private int score;
+    private int score, lifeCounterOfFish;
 
     private int yellowX, yellowY, yellowSpeed = 16;
     private Paint yellowPaint = new Paint();
 
     private int greenX, greenY, greenSpeed = 20;
     private Paint greenPaint = new Paint();
+
+    private int redX, redY, redSpeed = 25;
+    private Paint redPaint = new Paint();
 
     private boolean touch = false;
 
@@ -45,12 +50,19 @@ public class FlyingFishView extends View {
         yellowPaint.setColor(Color.YELLOW);
         yellowPaint.setAntiAlias(false);
 
+        greenPaint.setColor(Color.GREEN);
+        greenPaint.setAntiAlias(false);
+
+        redPaint.setColor(Color.RED);
+        redPaint.setAntiAlias(false);
+
         scorePaint.setColor(Color.WHITE);
         scorePaint.setTextSize(70);
         scorePaint.setTypeface(Typeface.DEFAULT_BOLD);
         scorePaint.setAntiAlias(true);
 
         fishY = 550;
+        lifeCounterOfFish = 3;
     }
 
     @Override
@@ -81,24 +93,60 @@ public class FlyingFishView extends View {
             canvas.drawBitmap(fish[0], fishX, fishY, null);
         }
 
+        // add yellow ball
         yellowX = yellowX - yellowSpeed;
-
         if (hitBallChecker(yellowX, yellowY)) {
             score = score + 10;
             yellowX = -100;
         }
-
         if (yellowX < 0) {
             yellowX = canvasWidth + 21;
             yellowY = (int) Math.floor(Math.random() * (maxFishY - minFishY)) + minFishY;
         }
         canvas.drawCircle(yellowX, yellowY, 25, yellowPaint);
+        // --------------------------------------------------------------------
+
+        // add green ball
+        greenX = greenX - greenSpeed;
+        if (hitBallChecker(greenX, greenY)) {
+            score = score + 20;
+            greenX = -100;
+        }
+        if (greenX < 0) {
+            greenX = canvasWidth + 21;
+            greenY = (int) Math.floor(Math.random() * (maxFishY - minFishY)) + minFishY;
+        }
+        canvas.drawCircle(greenX, greenY, 25, greenPaint);
+        // --------------------------------------------------------------------
+
+        // add red ball
+        redX = redX - redSpeed;
+        if (hitBallChecker(redX, redY)) {
+            redX = -100;
+            lifeCounterOfFish--;
+            if (lifeCounterOfFish == 0) {
+                Toast.makeText(getContext(), "Game Over", Toast.LENGTH_SHORT).show();
+                AppNavigator.navigateToGameOverActivity(getContext(), score);
+            }
+        }
+        if (redX < 0) {
+            redX = canvasWidth + 21;
+            redY = (int) Math.floor(Math.random() * (maxFishY - minFishY)) + minFishY;
+        }
+        canvas.drawCircle(redX, redY, 35, redPaint);
+        // --------------------------------------------------------------------
 
         canvas.drawText("Score : " + score, 20, 60, scorePaint);
 
-        canvas.drawBitmap(life[0], 580, 10, null);
-        canvas.drawBitmap(life[0], 680, 10, null);
-        canvas.drawBitmap(life[0], 780, 10, null);
+        for (int i = 0; i < 3; i++) {
+            int x = (int) (580 + life[0].getWidth() * 1.5 * i);
+            int y = 30;
+            if (i < lifeCounterOfFish) {
+                canvas.drawBitmap(life[0], x, y, null);
+            } else {
+                canvas.drawBitmap(life[1], x, y, null);
+            }
+        }
     }
 
     private boolean hitBallChecker(int x, int y) {

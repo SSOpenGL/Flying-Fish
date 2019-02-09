@@ -8,7 +8,7 @@ import com.playgo.flyingfish.R;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private static final int SLEEP = 5000;
+    private static final int SLEEP = 3000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
